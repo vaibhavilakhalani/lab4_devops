@@ -2,6 +2,11 @@ pipeline {
   agent any
   options { timestamps() }
 
+  environment {
+    CHROME_BIN = "${env.CHROME_BIN}"
+    CHROMEDRIVER_BIN = "${env.CHROMEDRIVER_BIN}"
+  }
+
   stages {
     stage('Checkout') {
       steps {
@@ -26,18 +31,20 @@ pipeline {
     }
 
     stage('Run Selenium E2E') {
-    steps {
+      steps {
         dir('react-selenium') {
-            bat '''
-                if not exist test-results mkdir test-results
-                npx mocha "e2e/**/*.js" --timeout 60000 ^
-                  --reporter mocha-junit-reporter ^
-                  --reporter-options mochaFile=test-results/results.xml
-            '''
+          bat '''
+            if not exist test-results mkdir test-results
+            echo Using Chrome: %CHROME_BIN%
+            echo Using Chromedriver: %CHROMEDRIVER_BIN%
+            npx mocha "e2e/**/*.js" --timeout 60000 ^
+              --reporter spec ^
+              --reporter mocha-junit-reporter ^
+              --reporter-options mochaFile=test-results/results.xml
+          '''
         }
+      }
     }
-}
-
 
     stage('Archive Results') {
       steps {
