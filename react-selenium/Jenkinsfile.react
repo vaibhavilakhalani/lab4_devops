@@ -29,11 +29,14 @@ pipeline {
     steps {
         dir('react-selenium') {
             bat '''
-                mkdir test-results
-                npx mocha "e2e/**/*.js" --timeout 60000 --reporter mocha-junit-reporter --reporter-options mochaFile=test-results/results.xml
+                if not exist test-results mkdir test-results
+                npx mocha "e2e/**/*.js" --timeout 60000 ^
+                  --reporter mocha-junit-reporter ^
+                  --reporter-options mochaFile=test-results/results.xml
             '''
         }
     }
+}
 }
 
     stage('Archive Results') {
