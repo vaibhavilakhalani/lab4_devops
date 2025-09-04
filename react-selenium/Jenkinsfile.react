@@ -1,52 +1,55 @@
 pipeline {
-    agent any
+  agent any
+  options { timestamps() }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Install Deps') {
-            steps {
-                dir('react-selenium') {
-                    bat 'npm install'
-                }
-            }
-        }
-
-        stage('Build App') {
-            steps {
-                dir('react-selenium') {
-                    bat 'npm run build'
-                }
-            }
-        }
-
-        stage('Run Selenium E2E') {
-            steps {
-                dir('react-selenium') {
-                    bat '''
-                        if not exist test-results mkdir test-results
-                        npx mocha "e2e/**/*.js" --timeout 60000 ^
-                          --reporter mocha-junit-reporter ^
-                          --reporter-options mochaFile=test-results/results.xml
-                    '''
-                }
-            }
-        }
-
-        stage('Archive Results') {
-            steps {
-                junit 'react-selenium/test-results/results.xml'
-            }
-        }
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
 
-    post {
-        always {
-            echo 'Pipeline finished.'
+    stage('Install Deps') {
+      steps {
+        dir('react-selenium') {
+          bat 'npm install'
+        }
+      }
+    }
+
+    stage('Build App') {
+      steps {
+        dir('react-selenium') {
+          bat 'npm run build'
+        }
+      }
+    }
+
+    stage('Run Selenium E2E') {
+    steps {
+        dir('react-selenium') {
+            bat '''
+                if not exist test-results mkdir test-results
+                npx mocha "e2e/**/*.js" --timeout 60000 ^
+                  --reporter mocha-junit-reporter ^
+                  --reporter-options mochaFile=test-results/results.xml
+            '''
         }
     }
+}
+
+
+    stage('Archive Results') {
+      steps {
+        junit 'react-selenium/test-results/*.xml'
+        archiveArtifacts artifacts: 'react-selenium/test-results/**', fingerprint: true, onlyIfSuccessful: false
+      }
+    }
+  }
+
+  post {
+    always {
+      echo 'Pipeline finished.'
+    }
+  }
 }
