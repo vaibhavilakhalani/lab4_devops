@@ -1,29 +1,39 @@
-const {Builder, By, until} = require('selenium-webdriver');
-const {expect} = require('chai');
+const { Builder, By, until } = require('selenium-webdriver');
+require('chromedriver');
 const chrome = require('selenium-webdriver/chrome');
+const { expect } = require('chai');
 
-describe('Example.org title check', function () {
-  this.timeout(60000);
+describe('Google Search Test', function () {
+  this.timeout(30000);
   let driver;
 
-  before(async () => {
-    const options = new chrome.Options();
-    options.addArguments('--headless=new', '--no-sandbox', '--disable-dev-shm-usage');
-    driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
+  before(async function () {
+    const chromeOptions = new chrome.Options();
+    chromeOptions.addArguments('--headless');
+    chromeOptions.addArguments('--no-sandbox');
+    chromeOptions.addArguments('--disable-dev-shm-usage');
+
+    driver = await new Builder()
+      .forBrowser('chrome')
+      .setChromeOptions(chromeOptions)
+      .build();
   });
 
-  after(async () => {
-    if (driver) await driver.quit();
+  after(async function () {
+    if (driver) {
+      await driver.quit();
+    }
   });
 
-  it('should load example.org and verify title', async () => {
-    await driver.get('https://example.org/');
+  it('should open Google and search for Jenkins', async function () {
+    await driver.get('https://www.google.com');
+    const searchBox = await driver.findElement(By.name('q'));
+    await searchBox.sendKeys('Jenkins CI/CD', '\n');
+
+    await driver.wait(until.titleContains('Jenkins'), 10000);
     const title = await driver.getTitle();
-    expect(title).to.contain('Example Domain');
+    console.log('Page title is:', title);
 
-    const h1 = await driver.findElement(By.css('h1'));
-    await driver.wait(until.elementIsVisible(h1), 5000);
-    const text = await h1.getText();
-    expect(text).to.contain('Example Domain');
+    expect(title).to.contain('Jenkins');
   });
 });

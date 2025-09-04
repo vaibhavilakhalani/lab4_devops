@@ -20,8 +20,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "serve": "serve -s build -l 3000",
     "test:e2e": "mocha \"e2e/**/*.js\" --timeout 60000 --reporter mocha-junit-reporter"
   },
+
   "mocha-junit-reporter": {
     "mochaFile": "test-results/mocha-results.xml",
     "suiteTitleSeparatedBy": " / "
@@ -37,10 +39,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "description": "",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }

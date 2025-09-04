@@ -2,11 +2,6 @@ pipeline {
   agent any
   options { timestamps() }
 
-  environment {
-    CHROME_BIN = "${env.CHROME_BIN}"
-    CHROMEDRIVER_BIN = "${env.CHROMEDRIVER_BIN}"
-  }
-
   stages {
     stage('Checkout') {
       steps {
@@ -18,6 +13,7 @@ pipeline {
       steps {
         dir('react-selenium') {
           bat 'npm install'
+          bat 'npm install -g serve'   // install serve globally
         }
       }
     }
@@ -35,10 +31,12 @@ pipeline {
         dir('react-selenium') {
           bat '''
             if not exist test-results mkdir test-results
-            echo Using Chrome: %CHROME_BIN%
-            echo Using Chromedriver: %CHROMEDRIVER_BIN%
+            REM Start React app in background on port 3000
+            start /B serve -s build -l 3000
+            timeout /t 5
+
+            REM Run Selenium tests
             npx mocha "e2e/**/*.js" --timeout 60000 ^
-              --reporter spec ^
               --reporter mocha-junit-reporter ^
               --reporter-options mochaFile=test-results/results.xml
           '''
@@ -57,6 +55,7 @@ pipeline {
   post {
     always {
       echo 'Pipeline finished.'
+      bat 'taskkill /F /IM node.exe || exit 0'  // cleanup React server after tests
     }
   }
 }
