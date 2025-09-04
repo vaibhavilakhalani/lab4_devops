@@ -1,0 +1,52 @@
+pipeline {
+  agent any
+  options { timestamps() }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Install Deps') {
+      steps {
+        dir('react-selenium') {
+          bat 'npm ci || npm install'
+        }
+      }
+    }
+
+    stage('Build App') {
+      steps {
+        dir('react-selenium') {
+          bat 'npm run build'
+        }
+      }
+    }
+
+    stage('Run Selenium E2E') {
+      steps {
+        dir('react-selenium') {
+          bat '''
+            mkdir test-results
+            npx mocha "e2e/**/*.js" --timeout 60000 --reporter mocha-junit-reporter
+          '''
+        }
+      }
+    }
+
+    stage('Archive Results') {
+      steps {
+        junit 'react-selenium/test-results/*.xml'
+        archiveArtifacts artifacts: 'react-selenium/test-results/**', fingerprint: true, onlyIfSuccessful: false
+      }
+    }
+  }
+
+  post {
+    always {
+      echo 'Pipeline finished.'
+    }
+  }
+}

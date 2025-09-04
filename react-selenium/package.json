@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test:e2e": "mocha \"e2e/**/*.js\" --timeout 60000 --reporter mocha-junit-reporter"
+  },
+  "mocha-junit-reporter": {
+    "mochaFile": "test-results/mocha-results.xml",
+    "suiteTitleSeparatedBy": " / "
+  }
+}
