@@ -26,15 +26,15 @@ pipeline {
     }
 
     stage('Run Selenium E2E') {
-      steps {
+    steps {
         dir('react-selenium') {
-          bat '''
-            mkdir test-results
-            npx mocha "e2e/**/*.js" --timeout 60000 --reporter mocha-junit-reporter
-          '''
+            bat '''
+                mkdir test-results
+                npx mocha "e2e/**/*.js" --timeout 60000 --reporter mocha-junit-reporter --reporter-options mochaFile=test-results/results.xml
+            '''
         }
-      }
     }
+}
 
     stage('Archive Results') {
       steps {
