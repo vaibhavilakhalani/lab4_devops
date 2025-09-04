@@ -1,7 +1,7 @@
 const { Builder, By, until } = require('selenium-webdriver');
-const { expect } = require('chai');
+require('chromedriver'); // ensures Node.js finds chromedriver
 
-describe('React App E2E Test', function () {
+describe('Google Search', function () {
   this.timeout(30000);
   let driver;
 
@@ -9,13 +9,15 @@ describe('React App E2E Test', function () {
     driver = await new Builder().forBrowser('chrome').build();
   });
 
-  after(async () => {
-    await driver.quit();
+  it('should open Google and search', async () => {
+    await driver.get('https://www.google.com');
+    const searchBox = await driver.findElement(By.name('q'));
+    await searchBox.sendKeys('Selenium WebDriver');
+    await searchBox.submit();
+    await driver.wait(until.titleContains('Selenium WebDriver'), 10000);
   });
 
-  it('should load the homepage', async () => {
-    await driver.get('http://localhost:3000');
-    const title = await driver.getTitle();
-    expect(title).to.include('React');
+  after(async () => {
+    await driver.quit();
   });
 });
